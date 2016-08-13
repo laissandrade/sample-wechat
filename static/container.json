@@ -1,4 +1,7 @@
 {
     "id": "static",
-    "type": "wedeploy/hosting"
+    "type": "wedeploy/hosting",
+    "hooks": {
+      "build": "./build.sh"
+    }
 }

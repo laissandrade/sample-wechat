@@ -2,8 +2,8 @@
 
 var myUser = {};
 
-var DOMAIN = 'wedeploy.me';
-var MESSAGES_ENDPOINT = 'http://data.wechat.' + DOMAIN + '/messages';
+var DOMAIN = window.location.hostname;
+var MESSAGES_ENDPOINT = 'http://data.'+ DOMAIN + '/messages';
 
 if (localStorage.myUser) {
 	myUser = JSON.parse(localStorage.myUser);
@@ -21,6 +21,8 @@ else {
 /* First Load */
 
 var conversation = document.querySelector('.conversation-container');
+
+console.log(MESSAGES_ENDPOINT);
 
 Launchpad.url(MESSAGES_ENDPOINT)
 	.limit(100)

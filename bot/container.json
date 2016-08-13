@@ -1,6 +1,6 @@
 {
 	"hooks": {
-		"build": "./gradlew clean build installDist -x test"
+		"build": "./gradlew -Dorg.gradle.native=false clean build installDist -x test"
 	},
 	"id": "bot",
 	"type": "wedeploy/maven"

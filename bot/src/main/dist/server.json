@@ -1,0 +1,5 @@
+{
+    "runtimes": [
+        "io.wedeploy.wechat.bot.ChatListenerRuntime"
+    ]
+}

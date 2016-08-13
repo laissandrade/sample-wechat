@@ -1,0 +1,44 @@
+group 'io.wedeploy.wechat.bot'
+version '1.0-SNAPSHOT'
+
+
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath group: 'com.liferay', name: 'com.liferay.gradle.plugins.source.formatter', version: '1.0.1'
+    }
+}
+
+
+apply plugin: 'java'
+apply plugin: 'application'
+apply plugin: 'com.liferay.source.formatter'
+
+
+mainClassName = "com.wedeploy.engine.server.WeDeployRunner"
+
+
+repositories {
+    jcenter()
+    mavenLocal()
+    mavenCentral()
+    maven () {
+        url "https://jitpack.io"
+    }
+}
+
+dependencies {
+    compile 'com.github.wedeploy.api-java:api:master-SNAPSHOT'
+	runtime 'com.github.wedeploy.engine:server:master-SNAPSHOT'
+
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.12'
+}
+

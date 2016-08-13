@@ -1,0 +1,7 @@
+{
+  "id": "bot",
+  "type": "wedeploy/maven",
+  "hooks": {
+    "build": "./gradlew clean build installDist -x test"
+  }
+}

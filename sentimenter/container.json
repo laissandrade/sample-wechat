@@ -1,0 +1,8 @@
+{
+  "id": "sentimenter",
+  "name": "Sentimenter",
+  "type": "wedeploy/nodejs",
+  "hooks": {
+    "build": "npm install"
+  }
+}

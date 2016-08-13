@@ -1,4 +1,5 @@
 {
     "id": "data",
+    "name": "Messages",
     "type": "wedeploy/data"
 }

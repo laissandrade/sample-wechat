@@ -1,0 +1,24 @@
+group 'io.wedeploy.wechat.favorites'
+version '1.0-SNAPSHOT'
+
+
+apply plugin: 'java'
+
+repositories {
+    jcenter()
+    mavenLocal()
+    mavenCentral()
+    maven () {
+        url "https://jitpack.io"
+    }
+}
+
+dependencies {
+    compile 'com.github.wedeploy.api-java:api:master-SNAPSHOT'
+    compile 'com.github.wedeploy.engine:server:master-SNAPSHOT'
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.12'
+}
+

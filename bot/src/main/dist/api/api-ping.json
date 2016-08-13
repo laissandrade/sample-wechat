@@ -1,0 +1,6 @@
+[
+	{
+		"handler": "io.wedeploy.wechat.bot.handlers.PongHandler#handle",
+		"path": "/_ping"
+	}
+]

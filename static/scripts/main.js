@@ -1,100 +1,189 @@
-/* User */
+'use strict';
 
-var myUser = {};
+const DOMAIN = window.location.hostname.split(".").slice(-3).join(".");
+const MESSAGES_ENDPOINT = 'http://data.'+ DOMAIN + '/messages';
+const FAVORITES_ENDPOINT = 'http://favorites.'+ DOMAIN + '/messages';
 
-var MESSAGES_ENDPOINT = 'http://data.wechat.wedeploy.me/messages';
+const ELEMS = {
+  conversation: document.querySelector('.conversation-container'),
+  form: document.querySelector('.conversation-compose'),
+  chatStatus: document.querySelector('#chat-status'),
+  chatLogin: document.querySelector('#chat-login')
+};
 
-if (localStorage.myUser) {
-	myUser = JSON.parse(localStorage.myUser);
-}
-else {
-	myUser = {
-		"id": faker.random.uuid(),
-		"name": faker.name.firstName(),
-		"color": 'color-' + Math.floor(Math.random() * 19)
-	};
 
-	localStorage.setItem('myUser', JSON.stringify(myUser));
-}
+function main () {
+  let user = initUser();
 
-/* First Load */
-
-var conversation = document.querySelector('.conversation-container');
-
-Launchpad.url(MESSAGES_ENDPOINT)
-	.limit(100)
-	.sort('id', 'asc')
-	.get()
-	.then(function(result) {
-		var messages = result.body();
-		for (var i = 0; i < messages.length; i++) {
-			appendMessage(messages[i]);
-		}
-	});
-
-	Launchpad.url(MESSAGES_ENDPOINT)
-		.limit(1)
-		.sort('id', 'desc')
-		.watch()
-		.on('changes', function(result) {
-			var data = result.pop();
-			var element = document.getElementById(data.id);
-			if (element) {
-				animateMessage(element);
-			} else {
-				appendMessage(data);
-			}
-		});
-
-/* New Message */
-
-var form = document.querySelector('.conversation-compose');
-
-form.addEventListener('submit', newMessage);
-
-function appendMessage(data) {
-	var element = buildMessage(data);
-	element.id = data.id;
-	conversation.appendChild(element);
-	conversation.scrollTop = conversation.scrollHeight;
+  initLogin(ELEMS.chatLogin);
+  initConversation(MESSAGES_ENDPOINT, user, ELEMS.conversation);
+  listenToMessagesReceived(MESSAGES_ENDPOINT, user, ELEMS.conversation);
+  listenToMessageSubmission(MESSAGES_ENDPOINT, ELEMS.form, user, ELEMS.conversation);
 }
 
-function newMessage(e) {
-	var input = e.target.input;
 
-	if (input.value) {
-		var data = {
-			id: 'uuid' + Date.now(),
-			author: {
-				id: myUser.id,
-				name: myUser.name,
-				color: myUser.color
-			},
-			content: input.value,
-			time: moment().format('h:mm A')
-		};
+function initLogin (loginElement) {
+  loginElement.addEventListener('click', e => {
+    let auth = new WeDeploy.AuthApiHelper('http://auth.dashboard.wedeploy.me');
+		let githubProvider = new WeDeploy.GithubAuthProvider();
+		let googleProvider = new WeDeploy.GoogleAuthProvider();
 
-		appendMessage(data);
+		googleProvider.setProviderScope('profile');
 
-		Launchpad.url(MESSAGES_ENDPOINT)
-			.post(data);
-	}
-
-	input.value = '';
-	conversation.scrollTop = conversation.scrollHeight;
-
-	e.preventDefault();
+		auth.onSignIn((token) => {
+			console.log('Sign-in', token);
+    });
+  });
 }
 
-function buildMessage(data) {
-	var color = (data.author.id !== myUser.id) ? data.author.color : '';
-	var sender = (data.author.id !== myUser.id) ? 'received' : 'sent';
 
-	var element = document.createElement('div');
+/**
+ * Initializes the user, either from localstorage or by
+ * creating it and then storing it on localstorage.
+ */
+function initUser () {
+  if (localStorage.myUser) {
+    return JSON.parse(localStorage.myUser);
+  }
+
+  let user = {
+    "id": faker.random.uuid(),
+    "name": faker.name.firstName(),
+    "color": 'color-' + Math.floor(Math.random() * 19)
+  };
+
+  localStorage.setItem('myUser', JSON.stringify(user));
+
+  return user;
+}
+
+
+/**
+ * Initializes the conversation element
+ */
+function initConversation (messagesEndpoint, user, conversationElement) {
+  const BOT_USER = {
+    "id": 'TheBot',
+    "name": 'TheBot',
+    "color": 'color-1'
+  };
+
+  Launchpad.url(messagesEndpoint)
+    .limit(100)
+    .sort('id', 'desc')
+    .get()
+    .then((result) => {
+
+      ELEMS.chatStatus.innerHTML = 'online';
+
+      result
+        .body()
+        .reverse()
+        .forEach(appendMessage.bind(null, user, conversationElement));
+
+      appendMessage(user, conversationElement, {
+        content: [ 
+          "Hey! I'm a TheBot.", 
+          "Type `TheBot: command` to use my API.", 
+          "Use `help` command to start :D " 
+        ].join('<br />'),
+        time: 'whatever', 
+        author: BOT_USER
+      }); 
+    });
+}
+
+
+function listenToMessagesReceived (messagesEndpoint, user, conversationElement) {
+  Launchpad.url(messagesEndpoint)
+    .limit(1)
+    .sort('id', 'desc')
+    .watch()
+    .on('changes', (result) => {
+      let data = result.pop();
+
+      if (data.domID) {
+        let element = document.getElementById(data.domID);
+
+        if (element) {
+          return animateMessage(element);
+        } 
+      }
+      
+      appendMessage(user, conversationElement, data);
+    });
+}
+
+
+function listenToMessageSubmission(messagesEndpoint, form, user, conversationElement) {
+  form.addEventListener('submit', (e) => {
+    let {input} = e.target;
+
+    if (input.value) {
+      let data = {
+        domID: faker.random.uuid(),
+        author: {
+          id: user.id,
+          name: user.name,
+          color: user.color
+        },
+        content: input.value,
+        time: moment().format('h:mm A')
+      };
+
+      appendMessage(user, conversationElement, data);
+
+      Launchpad
+        .url(messagesEndpoint)
+        .post(data);
+    }
+
+    input.value = '';
+    conversationElement.scrollTop = conversationElement.scrollHeight;
+
+    e.preventDefault();
+  });
+}
+
+
+/**
+ * Appends a message to the conversation element.
+ */
+function appendMessage(myUser, conversationElement, data) {
+	let element = buildMessage(data, myUser);
+
+	element.id = data.domID;
+	conversationElement.appendChild(element);
+	conversationElement.scrollTop = conversationElement.scrollHeight;
+  element.addEventListener('click', (e) => {
+    let {id} = e.target.parentElement;
+
+    Launchpad
+      .url(FAVORITES_ENDPOINT)
+      .path("favorites")
+      .post({ messageId: id })
+      .then(() => {
+        console.log("Success!", arguments); 
+      }).catch(() => {
+        console.log("Error!", arguments); 
+      });
+  });
+}
+
+
+/**
+ * Generates a message element from the data object
+ */
+function buildMessage(data, myUser) {
+	const color = (data.author.id !== myUser.id) ? data.author.color : '';
+	const sender = (data.author.id !== myUser.id) ? 'received' : 'sent';
+  const content = data.content.replace(/(?:\r\n|\r|\n)/g, '<br />');
+
+	let element = document.createElement('div');
 
 	element.classList.add('message', sender);
 	element.innerHTML = '<span class="user ' + color + '">' + data.author.name + '</span>' +
-		'<span class="text">' + data.content + '</span>' +
+		'<span class="text">' + content + '</span>' +
 		'<span class="metadata">' +
 			'<span class="time">' + data.time + '</span>' +
 			'<span class="tick tick-animation">' +
@@ -106,17 +195,24 @@ function buildMessage(data) {
 	return element;
 }
 
+
 function animateMessage(message) {
-	var tick = message.querySelector('.tick');
+	let tick = message.querySelector('.tick');
 	tick.classList.remove('tick-animation');
 }
 
-/* Time */
 
-var deviceTime = document.querySelector('.status-bar .time');
+/**
+ * Starts the ticking of the device time,
+ * setting the updated time in the screen.
+ */
+function startDeviceTime () {
+  let deviceTime = document.querySelector('.status-bar .time');
 
-deviceTime.innerHTML = moment().format('h:mm');
+  deviceTime.innerHTML = moment().format('h:mm');
+  setInterval(() => {
+    deviceTime.innerHTML = moment().format('h:mm');
+  }, 1000);
+}
 
-setInterval(function() {
-	deviceTime.innerHTML = moment().format('h:mm');
-}, 1000);
+main();

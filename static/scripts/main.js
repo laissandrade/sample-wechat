@@ -55,7 +55,7 @@ function initConversation (messagesEndpoint, user, conversationElement) {
 
 
 function listenToMessagesReceived (messagesEndpoint, user, conversationElement) {
-  Launchpad.url(MESSAGES_ENDPOINT)
+  Launchpad.url(messagesEndpoint)
     .limit(1)
     .sort('id', 'desc')
     .watch()
@@ -81,7 +81,7 @@ function listenToMessageSubmission(messagesEndpoint, form, user, conversationEle
     let {input} = e.target;
 
     if (input.value) {
-      var data = {
+      let data = {
         domID: faker.random.uuid(),
         author: {
           id: user.id,
@@ -95,7 +95,7 @@ function listenToMessageSubmission(messagesEndpoint, form, user, conversationEle
       appendMessage(user, conversationElement, data);
 
       Launchpad
-        .url(MESSAGES_ENDPOINT)
+        .url(messagesEndpoint)
         .post(data);
     }
 
@@ -111,7 +111,7 @@ function listenToMessageSubmission(messagesEndpoint, form, user, conversationEle
  * Appends a message to the conversation element.
  */
 function appendMessage(user, conversationElement, data) {
-	var element = buildMessage(data, user);
+	let element = buildMessage(data, user);
 
 	element.id = data.domID;
 	conversationElement.appendChild(element);
@@ -145,7 +145,7 @@ function buildMessage(data, user) {
 
 
 function animateMessage(message) {
-	var tick = message.querySelector('.tick');
+	let tick = message.querySelector('.tick');
 	tick.classList.remove('tick-animation');
 }
 

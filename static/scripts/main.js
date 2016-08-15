@@ -1,99 +1,126 @@
-/* User */
+'use strict';
 
-var myUser = {};
+const DOMAIN = window.location.hostname;
+const MESSAGES_ENDPOINT = 'http://data.'+ DOMAIN + '/messages';
+const ELEMS = {
+  conversation: document.querySelector('.conversation-container'),
+  form: document.querySelector('.conversation-compose')
+};
 
-var DOMAIN = window.location.hostname;
-var MESSAGES_ENDPOINT = 'http://data.'+ DOMAIN + '/messages';
 
-if (localStorage.myUser) {
-	myUser = JSON.parse(localStorage.myUser);
-}
-else {
-	myUser = {
-		"id": faker.random.uuid(),
-		"name": faker.name.firstName(),
-		"color": 'color-' + Math.floor(Math.random() * 19)
-	};
+function main () {
+  let user = initUser();
 
-	localStorage.setItem('myUser', JSON.stringify(myUser));
+  initConversation(MESSAGES_ENDPOINT, user, ELEMS.conversation);
+  listenToMessagesReceived(MESSAGES_ENDPOINT, user, ELEMS.conversation);
+  listenToMessageSubmission(ELEMS.form, user, ELEMS.conversation);
 }
 
-/* First Load */
 
-var conversation = document.querySelector('.conversation-container');
+/**
+ * Initializes the user, either for the localstorage or by
+ * creating it and then storing it on localstorage.
+ */
+function initUser () {
+  if (localStorage.myUser) {
+    return JSON.parse(localStorage.myUser);
+  }
 
-console.log(MESSAGES_ENDPOINT);
+  let user = {
+    "id": faker.random.uuid(),
+    "name": faker.name.firstName(),
+    "color": 'color-' + Math.floor(Math.random() * 19)
+  };
 
-Launchpad.url(MESSAGES_ENDPOINT)
-	.limit(100)
-	.sort('id', 'asc')
-	.get()
-	.then(function(result) {
-		var messages = result.body();
-		for (var i = 0; i < messages.length; i++) {
-			appendMessage(messages[i]);
-		}
-	});
+  localStorage.setItem('myUser', JSON.stringify(user));
 
-	Launchpad.url(MESSAGES_ENDPOINT)
-		.limit(1)
-		.sort('id', 'desc')
-		.watch()
-		.on('changes', function(result) {
-			var data = result.pop();
-			var element = document.getElementById(data.id);
-			if (element) {
-				animateMessage(element);
-			} else {
-				appendMessage(data);
-			}
-		});
+  return user;
+}
 
-/* New Message */
+/**
+ * Initializes the conversation element
+ */
+function initConversation (messagesEndpoint, user, conversationElement) {
+  Launchpad.url(messagesEndpoint)
+    .limit(100)
+    .sort('id', 'asc')
+    .get()
+    .then((result) => {
+      result
+        .body()
+        .forEach(appendMessage.bind(null, user, conversationElement));
+    });
+}
 
-var form = document.querySelector('.conversation-compose');
 
-form.addEventListener('submit', newMessage);
+function listenToMessagesReceived (messagesEndpoint, user, conversationElement) {
+  Launchpad.url(MESSAGES_ENDPOINT)
+    .limit(1)
+    .sort('id', 'desc')
+    .watch()
+    .on('changes', (result) => {
+      let data = result.pop();
+      let element = document.getElementById(data.id);
 
-function appendMessage(data) {
-	var element = buildMessage(data);
+      if (element) {
+        animateMessage(element);
+      } else {
+        appendMessage(user, conversationElement, data);
+      }
+    });
+}
+
+
+/**
+ * Appends a message to the conversation element.
+ */
+function appendMessage(user, conversationElement, data) {
+	var element = buildMessage(data, user);
+
 	element.id = data.id;
-	conversation.appendChild(element);
-	conversation.scrollTop = conversation.scrollHeight;
+	conversationElement.appendChild(element);
+	conversationElement.scrollTop = conversationElement.scrollHeight;
 }
 
-function newMessage(e) {
-	var input = e.target.input;
 
-	if (input.value) {
-		var data = {
-			id: 'uuid' + Date.now(),
-			author: {
-				id: myUser.id,
-				name: myUser.name,
-				color: myUser.color
-			},
-			content: input.value,
-			time: moment().format('h:mm A')
-		};
+function listenToMessageSubmission(form, user, conversationElement) {
+  form.addEventListener('submit', (e) => {
+    let {input} = e.target;
 
-		appendMessage(data);
+    if (input.value) {
+      var data = {
+        id: 'uuid' + Date.now(),
+        author: {
+          id: user.id,
+          name: user.name,
+          color: user.color
+        },
+        content: input.value,
+        time: moment().format('h:mm A')
+      };
 
-		Launchpad.url(MESSAGES_ENDPOINT)
-			.post(data);
-	}
+      appendMessage(user, conversationElement, data);
 
-	input.value = '';
-	conversation.scrollTop = conversation.scrollHeight;
+      Launchpad
+        .url(MESSAGES_ENDPOINT)
+        .post(data);
+    }
 
-	e.preventDefault();
+    input.value = '';
+    conversationElement.scrollTop = conversationElement.scrollHeight;
+
+    e.preventDefault();
+  });
 }
 
-function buildMessage(data) {
-	var color = (data.author.id !== myUser.id) ? data.author.color : '';
-	var sender = (data.author.id !== myUser.id) ? 'received' : 'sent';
 
-	var element = document.createElement('div');
+/**
+ * Generates a message element from the data object
+ */
+function buildMessage(data, user) {
+	const color = (data.author.id !== user.id) ? data.author.color : '';
+	const sender = (data.author.id !== user.id) ? 'received' : 'sent';
+	let element = document.createElement('div');
 
 	element.classList.add('message', sender);
 	element.innerHTML = '<span class="user ' + color + '">' + data.author.name + '</span>' +
@@ -109,17 +136,24 @@ function buildMessage(data) {
 	return element;
 }
 
+
 function animateMessage(message) {
 	var tick = message.querySelector('.tick');
 	tick.classList.remove('tick-animation');
 }
 
-/* Time */
 
-var deviceTime = document.querySelector('.status-bar .time');
+/**
+ * Starts the ticking of the device time,
+ * setting the updated time in the screen.
+ */
+function startDeviceTime () {
+  let deviceTime = document.querySelector('.status-bar .time');
 
-deviceTime.innerHTML = moment().format('h:mm');
+  deviceTime.innerHTML = moment().format('h:mm');
+  setInterval(() => {
+    deviceTime.innerHTML = moment().format('h:mm');
+  }, 1000);
+}
 
-setInterval(function() {
-	deviceTime.innerHTML = moment().format('h:mm');
-}, 1000);
+main();

@@ -2,43 +2,31 @@ package io.wedeploy.wechat.bot;
 
 import com.wedeploy.api.WeDeploy;
 import com.wedeploy.api.realtime.RealTime;
-import com.wedeploy.api.sdk.ContentType;
 import com.wedeploy.api.sdk.Context;
 import com.wedeploy.api.sdk.Lifecycle;
 import com.wedeploy.api.serializer.Parser;
+import io.wedeploy.wechat.bot.commands.Bot;
+import io.wedeploy.wechat.bot.commands.HelpCommand;
+import io.wedeploy.wechat.bot.commands.SayHelloCommand;
+import org.json.JSONObject;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * @author cirocosta
  */
 public class ChatListenerRuntime implements Lifecycle {
 
-	public void searchForCommands(String message) {
-		int botPrefixIndex = message.indexOf(BOT_PREFIX);
-
-		if (botPrefixIndex == -1) {
-			return;
-		}
-
-		String command = message.substring(botPrefixIndex, message.length());
-
-		if (commands.contains(command)) {
-			System.out.println("Command found: " + command);
-		}
-	}
-
 	@Override
 	public void start(Context context) {
 		messagesClient = WeDeploy
 			.url("data")
 			.path("messages");
-		commands = Arrays.asList(COMMANDS);
+
+		bot = new Bot()
+			.registerCommand(new SayHelloCommand())
+			.registerCommand(new HelpCommand());
 
 		realtime = messagesClient
 			.limit(1)
@@ -49,51 +37,33 @@ public class ChatListenerRuntime implements Lifecycle {
 					.get()
 					.parse(res[0].toString());
 
-				messages.forEach(message -> {
-					try {
-						messagesClient
-							.contentType(ContentType.JSON)
-							.post(
-								createBotMessage("Hello Fellas")
-								.toString());
-
-						System.out.println(createBotMessage("Hello Fellas"));
-
-					} catch (JSONException e) {
-						e.printStackTrace();
-					}
-				});
+				messages.forEach(this::onNewMessage);
 			});
 	}
 
 	@Override
 	public void stop(Context context) {
-		System.out.println("Stopping");
-
 		if (realtime != null) {
 			realtime.close();
 		}
 	}
 
-	private JSONObject createBotMessage(String content) throws JSONException {
-		JSONObject author = new JSONObject()
-			.put("id", "TheBot")
-			.put("name", "TheBot")
-			.put("color", "color-1");
+	private void onNewMessage(Map message) {
+		Map<String, Object> author = (Map<String, Object>)message.get("author");
 
-		JSONObject object = new JSONObject()
-			.put("content", content)
-			.put("time", "whatever")
-			.put("author", author);
+		if (author.get("id").equals("TheBot")) {
+			return;
+		}
 
-		return object;
+		JSONObject botMessage = bot.processMessage(
+			(String)message.get("content"));
+
+		if (botMessage != null) {
+			messagesClient .post(botMessage.toString());
+		}
 	}
 
-	private static final String BOT_PREFIX = "bot: ";
-
-	private final String[] COMMANDS = {"say_hi"};
-
-	private List<String> commands;
+	private Bot bot;
 	private WeDeploy messagesClient;
 	private RealTime realtime;
 

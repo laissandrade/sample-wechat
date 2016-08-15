@@ -1,5 +1,7 @@
 {
 	"hooks": {
+		"after_build": "test $CI || we restart wechat bot",
+		"before_build": "test $CI || ./gradlew format",
 		"build": "./gradlew -Dorg.gradle.native=false clean build installDist -x test"
 	},
 	"id": "bot",

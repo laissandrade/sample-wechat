@@ -13,12 +13,12 @@ function main () {
 
   initConversation(MESSAGES_ENDPOINT, user, ELEMS.conversation);
   listenToMessagesReceived(MESSAGES_ENDPOINT, user, ELEMS.conversation);
-  listenToMessageSubmission(ELEMS.form, user, ELEMS.conversation);
+  listenToMessageSubmission(MESSAGES_ENDPOINT, ELEMS.form, user, ELEMS.conversation);
 }
 
 
 /**
- * Initializes the user, either for the localstorage or by
+ * Initializes the user, either from localstorage or by
  * creating it and then storing it on localstorage.
  */
 function initUser () {
@@ -36,6 +36,7 @@ function initUser () {
 
   return user;
 }
+
 
 /**
  * Initializes the conversation element
@@ -60,36 +61,28 @@ function listenToMessagesReceived (messagesEndpoint, user, conversationElement) 
     .watch()
     .on('changes', (result) => {
       let data = result.pop();
-      let element = document.getElementById(data.id);
+      console.log(data);
 
-      if (element) {
-        animateMessage(element);
-      } else {
-        appendMessage(user, conversationElement, data);
+      if (data.domID) {
+        let element = document.getElementById(data.domID);
+
+        if (element) {
+          return animateMessage(element);
+        } 
       }
+      
+      appendMessage(user, conversationElement, data);
     });
 }
 
 
-/**
- * Appends a message to the conversation element.
- */
-function appendMessage(user, conversationElement, data) {
-	var element = buildMessage(data, user);
-
-	element.id = data.id;
-	conversationElement.appendChild(element);
-	conversationElement.scrollTop = conversationElement.scrollHeight;
-}
-
-
-function listenToMessageSubmission(form, user, conversationElement) {
+function listenToMessageSubmission(messagesEndpoint, form, user, conversationElement) {
   form.addEventListener('submit', (e) => {
     let {input} = e.target;
 
     if (input.value) {
       var data = {
-        id: 'uuid' + Date.now(),
+        domID: faker.random.uuid(),
         author: {
           id: user.id,
           name: user.name,
@@ -115,16 +108,30 @@ function listenToMessageSubmission(form, user, conversationElement) {
 
 
 /**
+ * Appends a message to the conversation element.
+ */
+function appendMessage(user, conversationElement, data) {
+	var element = buildMessage(data, user);
+
+	element.id = data.domID;
+	conversationElement.appendChild(element);
+	conversationElement.scrollTop = conversationElement.scrollHeight;
+}
+
+
+/**
  * Generates a message element from the data object
  */
 function buildMessage(data, user) {
 	const color = (data.author.id !== user.id) ? data.author.color : '';
 	const sender = (data.author.id !== user.id) ? 'received' : 'sent';
+  const content = data.content.replace(/(?:\r\n|\r|\n)/g, '<br />');
+
 	let element = document.createElement('div');
 
 	element.classList.add('message', sender);
 	element.innerHTML = '<span class="user ' + color + '">' + data.author.name + '</span>' +
-		'<span class="text">' + data.content + '</span>' +
+		'<span class="text">' + content + '</span>' +
 		'<span class="metadata">' +
 			'<span class="time">' + data.time + '</span>' +
 			'<span class="tick tick-animation">' +

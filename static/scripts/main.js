@@ -42,6 +42,12 @@ function initUser () {
  * Initializes the conversation element
  */
 function initConversation (messagesEndpoint, user, conversationElement) {
+  const BOT_USER = {
+    "id": 'TheBot',
+    "name": 'TheBot',
+    "color": 'color-1'
+  };
+
   Launchpad.url(messagesEndpoint)
     .limit(100)
     .sort('id', 'asc')
@@ -50,6 +56,16 @@ function initConversation (messagesEndpoint, user, conversationElement) {
       result
         .body()
         .forEach(appendMessage.bind(null, user, conversationElement));
+
+      appendMessage(user, conversationElement, {
+        content: [ 
+          "Hey! I'm a TheBot.", 
+          "Type `TheBot: command` to use my API.", 
+          "Use `help` command to start :D " 
+        ].join('<br />'),
+        time: 'whatever', 
+        author: BOT_USER
+      }); 
     });
 }
 
@@ -61,7 +77,6 @@ function listenToMessagesReceived (messagesEndpoint, user, conversationElement) 
     .watch()
     .on('changes', (result) => {
       let data = result.pop();
-      console.log(data);
 
       if (data.domID) {
         let element = document.getElementById(data.domID);
@@ -110,8 +125,8 @@ function listenToMessageSubmission(messagesEndpoint, form, user, conversationEle
 /**
  * Appends a message to the conversation element.
  */
-function appendMessage(user, conversationElement, data) {
-	let element = buildMessage(data, user);
+function appendMessage(myUser, conversationElement, data) {
+	let element = buildMessage(data, myUser);
 
 	element.id = data.domID;
 	conversationElement.appendChild(element);
@@ -122,9 +137,9 @@ function appendMessage(user, conversationElement, data) {
 /**
  * Generates a message element from the data object
  */
-function buildMessage(data, user) {
-	const color = (data.author.id !== user.id) ? data.author.color : '';
-	const sender = (data.author.id !== user.id) ? 'received' : 'sent';
+function buildMessage(data, myUser) {
+	const color = (data.author.id !== myUser.id) ? data.author.color : '';
+	const sender = (data.author.id !== myUser.id) ? 'received' : 'sent';
   const content = data.content.replace(/(?:\r\n|\r|\n)/g, '<br />');
 
 	let element = document.createElement('div');

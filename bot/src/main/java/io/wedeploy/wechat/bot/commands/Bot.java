@@ -37,9 +37,7 @@ public class Bot {
 			}
 		}
 
-		defaultCommand.respond(this, null);
-
-		return null;
+		return createBotMessage(defaultCommand.respond(this, null));
 	}
 
 	public Bot registerCommand(Command command) {

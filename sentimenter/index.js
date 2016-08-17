@@ -25,6 +25,28 @@ app.post('/analyze', (req, res) => {
   res.send(sentiment(req.body.text));
 });
 
+
+app.post('/analyzeAll', (req, res) => {
+  if (!req.body || !req.body.texts || !req.body.texts.length) {
+    res
+      .status(400)
+      .send({error: 'A request body is expected having the `texts` key-value set.'});
+  }
+
+  console.log("Received: ", req.body);
+
+  let totalScore = 0;
+
+  req.body.texts.forEach((text) => {
+    totalScore += sentiment(text).score;
+  });
+
+  res.send({
+    score: (totalScore / req.body.texts.length)
+  });
+});
+
+
 app.use(express.static('public'));
 
 app.listen(PORT, () => {

@@ -193,7 +193,7 @@ body {
   margin: 8px 0;
   max-width: 85%;
   word-wrap: break-word;
-  z-index: -1;
+  z-index: 100;
 }
 
 .message:after {
@@ -212,7 +212,25 @@ body {
   background: #fff;
   border-radius: 0px 5px 5px 5px;
   float: left;
+  transition: .2s ease-out;
 }
+
+.message.sent {
+  transition: .2s ease-out;
+}
+
+.message.received:hover {
+  box-shadow: 6px 5px 10px gray;
+  transform: translateY(-2px);
+  cursor: pointer;
+}
+
+.message.sent:hover {
+  box-shadow: -6px 5px 10px gray;
+  transform: translateY(-2px);
+  cursor: pointer;
+}
+
 
 .message.received .metadata {
   padding: 0 0 0 16px;
@@ -527,3 +545,4 @@ body {
     height: calc(100vh - 120px);
   }
 }
+

@@ -1,7 +1,11 @@
 'use strict';
 
-const DOMAIN = window.location.hostname;
+const DOMAIN = window.location.hostname.split(".").slice(-3).join(".");
 const MESSAGES_ENDPOINT = 'http://data.'+ DOMAIN + '/messages';
+
+console.log(DOMAIN);
+console.log(MESSAGES_ENDPOINT);
+
 const ELEMS = {
   conversation: document.querySelector('.conversation-container'),
   form: document.querySelector('.conversation-compose')
@@ -50,11 +54,12 @@ function initConversation (messagesEndpoint, user, conversationElement) {
 
   Launchpad.url(messagesEndpoint)
     .limit(100)
-    .sort('id', 'asc')
+    .sort('id', 'desc')
     .get()
     .then((result) => {
       result
         .body()
+        .reverse()
         .forEach(appendMessage.bind(null, user, conversationElement));
 
       appendMessage(user, conversationElement, {

@@ -21,12 +21,9 @@ public interface Command {
 	public Pattern getPattern();
 
 	/**
-	 * Checks whether the command was called.
-	 */
-	public Matcher match(String message);
-
-	/**
-	 * Responds to a given message that called the bot command.
+	 * Responds to a given message that called the bot command. The matcher
+	 * object passed as argument might be null in case the command is
+	 * registered as default command.
 	 */
 	public String respond(Bot bot, Matcher matcher);
 

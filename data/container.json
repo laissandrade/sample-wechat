@@ -1,9 +1,7 @@
 {
-	"hooks": {
-		"after_build": "test $CI || we restart wechat data",
-		"before_build": "test $CI || ./gradlew format",
-		"build": "./gradlew -Dorg.gradle.native=false clean build installDist -x test"
-	},
-	"id": "data",
-	"type": "wedeploy/maven"
+    "id": "data",
+    "type": "wedeploy/engine",
+    "env": {
+        "WEDEPLOY_API_PATH": "/"
+    }
 }

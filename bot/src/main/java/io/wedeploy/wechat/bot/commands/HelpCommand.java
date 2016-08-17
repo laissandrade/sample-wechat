@@ -18,10 +18,6 @@ public class HelpCommand implements Command {
 		return pattern;
 	}
 
-	@Override
-	public Matcher match(String message) {
-		return pattern.matcher(message);
-	}
 
 	@Override
 	public String respond(Bot bot, Matcher matcher) {

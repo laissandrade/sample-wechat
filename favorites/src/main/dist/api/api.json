@@ -1,0 +1,9 @@
+[
+  {
+    "path": "/favorites/:userid/:messageId",
+    "handler": "io.wedeploy.wechat.handlers.CreateFavo",
+    "auth":  {
+      "validator": "$auth != null"
+    }
+  }
+]

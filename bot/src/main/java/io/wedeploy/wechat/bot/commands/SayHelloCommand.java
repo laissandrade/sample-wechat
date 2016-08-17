@@ -17,11 +17,6 @@ public class SayHelloCommand implements Command {
 	}
 
 	@Override
-	public Matcher match(String message) {
-		return pattern.matcher(message);
-	}
-
-	@Override
 	public String respond(Bot bot, Matcher matcher) {
 		return "Hello!";
 	}

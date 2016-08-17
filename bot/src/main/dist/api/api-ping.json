@@ -1,0 +1,6 @@
+[
+  {
+    "path": "/_ping",
+    "handler": "pong.js#handle"
+  }
+]

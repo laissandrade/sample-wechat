@@ -5,13 +5,15 @@ import com.wedeploy.api.realtime.RealTime;
 import com.wedeploy.api.sdk.Context;
 import com.wedeploy.api.sdk.Lifecycle;
 import com.wedeploy.api.serializer.Parser;
+
 import io.wedeploy.wechat.bot.commands.Bot;
 import io.wedeploy.wechat.bot.commands.HelpCommand;
 import io.wedeploy.wechat.bot.commands.SayHelloCommand;
-import org.json.JSONObject;
 
 import java.util.List;
 import java.util.Map;
+
+import org.json.JSONObject;
 
 /**
  * @author cirocosta

@@ -1,0 +1,7 @@
+[
+	{
+		"data": true,
+		"handler": "io.wedeploy.wechat.data.PostMessageHandler#enhanceMessage",
+		"path": "/messages/*"
+	}
+]

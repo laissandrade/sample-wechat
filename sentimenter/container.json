@@ -1,4 +1,5 @@
 {
   "id": "sentimenter",
+  "name": "Sentimenter",
   "type": "wedeploy/nodejs"
 }

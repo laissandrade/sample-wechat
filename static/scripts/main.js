@@ -3,12 +3,10 @@
 const DOMAIN = window.location.hostname.split(".").slice(-3).join(".");
 const MESSAGES_ENDPOINT = 'http://data.'+ DOMAIN + '/messages';
 
-console.log(DOMAIN);
-console.log(MESSAGES_ENDPOINT);
-
 const ELEMS = {
   conversation: document.querySelector('.conversation-container'),
-  form: document.querySelector('.conversation-compose')
+  form: document.querySelector('.conversation-compose'),
+  chatStatus: document.querySelector('#chat-status')
 };
 
 
@@ -16,6 +14,7 @@ function main () {
   let user = initUser();
 
   initConversation(MESSAGES_ENDPOINT, user, ELEMS.conversation);
+
   listenToMessagesReceived(MESSAGES_ENDPOINT, user, ELEMS.conversation);
   listenToMessageSubmission(MESSAGES_ENDPOINT, ELEMS.form, user, ELEMS.conversation);
 }
@@ -57,6 +56,9 @@ function initConversation (messagesEndpoint, user, conversationElement) {
     .sort('id', 'desc')
     .get()
     .then((result) => {
+
+      ELEMS.chatStatus.innerHTML = 'online';
+
       result
         .body()
         .reverse()

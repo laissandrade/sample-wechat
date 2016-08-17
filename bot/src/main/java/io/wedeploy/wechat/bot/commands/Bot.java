@@ -1,11 +1,11 @@
 package io.wedeploy.wechat.bot.commands;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * @author Ciro Costa
@@ -42,13 +42,13 @@ public class Bot {
 		return null;
 	}
 
-	public Bot registerDefaultCommand(Command command) {
-		defaultCommand = command;
+	public Bot registerCommand(Command command) {
+		commands.add(command);
 		return this;
 	}
 
-	public Bot registerCommand(Command command) {
-		commands.add(command);
+	public Bot registerDefaultCommand(Command command) {
+		defaultCommand = command;
 		return this;
 	}
 
@@ -86,7 +86,7 @@ public class Bot {
 
 	private static final String BOT_PREFIX = "TheBot: ";
 
-	private Command defaultCommand;
 	private List<Command> commands;
+	private Command defaultCommand;
 
 }

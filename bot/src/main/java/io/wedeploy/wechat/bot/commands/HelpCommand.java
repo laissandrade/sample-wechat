@@ -18,7 +18,6 @@ public class HelpCommand implements Command {
 		return pattern;
 	}
 
-
 	@Override
 	public String respond(Bot bot, Matcher matcher) {
 		StringBuilder sb = new StringBuilder();

@@ -8,13 +8,14 @@ import com.wedeploy.api.serializer.Parser;
 import io.wedeploy.wechat.bot.commands.Bot;
 import io.wedeploy.wechat.bot.commands.HelpCommand;
 import io.wedeploy.wechat.bot.commands.SayHelloCommand;
+import io.wedeploy.wechat.bot.commands.SentimentCommand;
 import org.json.JSONObject;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * @author cirocosta
+ * @author Ciro S. Costa
  */
 public class ChatListenerRuntime implements Lifecycle {
 
@@ -27,6 +28,7 @@ public class ChatListenerRuntime implements Lifecycle {
 		bot = new Bot()
 			.registerDefaultCommand(new HelpCommand())
 			.registerCommand(new SayHelloCommand())
+			.registerCommand(new SentimentCommand())
 			.registerCommand(new HelpCommand());
 
 		realtime = messagesClient

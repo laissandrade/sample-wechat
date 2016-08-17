@@ -24,18 +24,19 @@ public class SentimentCommand implements Command {
 	public String respond(Bot bot, Matcher matcher) {
 		String name = matcher.group("name");
 
-		if (name != null)	{
+		if (name != null) {
 			return analyzeName(name);
 		}
 
 		return analyzeEntireChat();
 	}
 
-	private String analyzeName (String name) {
+	private String analyzeName(String name) {
 		return "just-the-name";
 	}
 
-	private String analyzeEntireChat () {
+	private String analyzeEntireChat() {
 		return "entire";
 	}
+
 }

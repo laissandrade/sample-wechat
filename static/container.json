@@ -1,4 +1,5 @@
 {
     "id": "static",
+    "name": "Frontend",
     "type": "wedeploy/hosting"
 }

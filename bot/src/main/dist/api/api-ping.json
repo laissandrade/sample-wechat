@@ -1,6 +1,6 @@
 [
-  {
-    "path": "/_ping",
-    "handler": "pong.js#handle"
-  }
+	{
+		"handler": "io.wedeploy.wechat.bot.handlers.PongHandler#handle",
+		"path": "/_ping"
+	}
 ]

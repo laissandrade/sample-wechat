@@ -1,5 +1,5 @@
 {
-	"id": "wechat",
+  "id": "wechat",
   "name": "WeChat",
-	"homeContainer": "static"
+  "homeContainer": "static"
 }

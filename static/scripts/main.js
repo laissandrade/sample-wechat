@@ -68,7 +68,7 @@ function initConversation (messagesEndpoint, user, conversationElement) {
     "color": 'color-1'
   };
 
-  Launchpad.url(messagesEndpoint)
+  WeDeploy.url(messagesEndpoint)
     .limit(100)
     .sort('id', 'desc')
     .get()
@@ -95,7 +95,7 @@ function initConversation (messagesEndpoint, user, conversationElement) {
 
 
 function listenToMessagesReceived (messagesEndpoint, user, conversationElement) {
-  Launchpad.url(messagesEndpoint)
+  WeDeploy.url(messagesEndpoint)
     .limit(1)
     .sort('id', 'desc')
     .watch()
@@ -133,7 +133,7 @@ function listenToMessageSubmission(messagesEndpoint, form, user, conversationEle
 
       appendMessage(user, conversationElement, data);
 
-      Launchpad
+      WeDeploy
         .url(messagesEndpoint)
         .post(data);
     }
@@ -158,7 +158,7 @@ function appendMessage(myUser, conversationElement, data) {
   element.addEventListener('click', (e) => {
     let {id} = e.target.parentElement;
 
-    Launchpad
+    WeDeploy
       .url(FAVORITES_ENDPOINT)
       .path("favorites")
       .post({ messageId: id })

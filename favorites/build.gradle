@@ -15,7 +15,6 @@ repositories {
 
 dependencies {
     compile 'com.github.wedeploy.api-java:api:master-SNAPSHOT'
-    compile 'com.github.wedeploy.engine:server:master-SNAPSHOT'
 }
 
 task wrapper(type: Wrapper) {

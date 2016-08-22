@@ -2,37 +2,46 @@
 
 const DOMAIN = window.location.hostname.split(".").slice(-3).join(".");
 const MESSAGES_ENDPOINT = 'http://data.'+ DOMAIN + '/messages';
-const FAVORITES_ENDPOINT = 'http://favorites.'+ DOMAIN + '/messages';
+const AUTH_ENDPOINT = 'http://auth.'+ DOMAIN;
+const REDIRECT_ENDPOINT = 'http://static.'+ DOMAIN;
+const FAVORITES_ENDPOINT = 'http://favorites.'+ DOMAIN;
 
 const ELEMS = {
   conversation: document.querySelector('.conversation-container'),
   form: document.querySelector('.conversation-compose'),
   chatStatus: document.querySelector('#chat-status'),
-  chatLogin: document.querySelector('#chat-login')
+  chatLogin: document.querySelector('#chat-login'),
+  phoneButton: document.querySelector('.actions.phone')
 };
 
 
 function main () {
-  let user = initUser();
+  let user = initFakeUser();
 
-  initLogin(ELEMS.chatLogin);
+  initLogin(ELEMS.phoneButton, AUTH_ENDPOINT, REDIRECT_ENDPOINT, user);
   initConversation(MESSAGES_ENDPOINT, user, ELEMS.conversation);
   listenToMessagesReceived(MESSAGES_ENDPOINT, user, ELEMS.conversation);
   listenToMessageSubmission(MESSAGES_ENDPOINT, ELEMS.form, user, ELEMS.conversation);
 }
 
 
-function initLogin (loginElement) {
-  loginElement.addEventListener('click', e => {
-    let auth = new WeDeploy.AuthApiHelper('http://auth.dashboard.wedeploy.me');
-		let githubProvider = new WeDeploy.GithubAuthProvider();
-		let googleProvider = new WeDeploy.GoogleAuthProvider();
+function initLogin (loginElement, authEndpoint, redirectEndpoint, user) {
+  let auth = WeDeploy.auth(authEndpoint);
+  let provider = new auth.provider.Google();
 
-		googleProvider.setProviderScope('profile');
+  provider.setProviderScope('email');
+  provider.setRedirectUri(redirectEndpoint);
 
-		auth.onSignIn((token) => {
-			console.log('Sign-in', token);
-    });
+  loginElement.addEventListener('click', () => {
+    auth.signInWithRedirect(provider);
+  });
+
+
+  auth.onSignIn((loginDetails) => {
+    let {name} = loginDetails;
+
+    chatLogin.innerHTML = name;
+    user.name = name;
   });
 }
 
@@ -41,7 +50,7 @@ function initLogin (loginElement) {
  * Initializes the user, either from localstorage or by
  * creating it and then storing it on localstorage.
  */
-function initUser () {
+function initFakeUser () {
   if (localStorage.myUser) {
     return JSON.parse(localStorage.myUser);
   }

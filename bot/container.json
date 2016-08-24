@@ -1,8 +1,9 @@
 {
-	"hooks": {
-		"build": "./gradlew -Dorg.gradle.native=false clean build installDist -x test"
-	},
-	"id": "bot",
-	"name": "Bot",
-	"type": "wedeploy/maven"
+  "hooks": {
+    "build": "./gradlew -Dorg.gradle.native=false clean build installDist -x test"
+  },
+  "id": "bot",
+  "name": "Bot",
+  "type": "wedeploy/maven",
+  "instances": 9
 }

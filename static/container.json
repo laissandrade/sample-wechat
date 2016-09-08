@@ -1,6 +1,5 @@
 {
     "id": "static",
     "name": "Frontend",
-    "type": "wedeploy/hosting",
-    "instances": 8
+    "type": "wedeploy/hosting"
 }

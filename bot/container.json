@@ -4,6 +4,5 @@
   },
   "id": "bot",
   "name": "Bot",
-  "type": "wedeploy/maven",
-  "instances": 9
+  "type": "wedeploy/maven"
 }

@@ -4,6 +4,5 @@
   "type": "wedeploy/nodejs",
   "hooks": {
     "build": "npm install"
-  },
-  "instances": 9
+  }
 }

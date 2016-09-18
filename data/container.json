@@ -1,5 +1,6 @@
 {
     "id": "data",
     "name": "Messages",
-    "type": "wedeploy/data"
+    "type": "wedeploy/data",
+    "instances": 2
 }

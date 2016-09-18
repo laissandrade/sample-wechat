@@ -3,5 +3,5 @@
     "build": "./gradlew -Dorg.gradle.native=false clean build installDist -x test"
   },
   "id": "bot",
-  "type": "wedeploy/maven"
+  "type": "wedeploy/java"
 }

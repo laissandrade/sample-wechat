@@ -18,7 +18,7 @@ Assuming you've already installed the [WeDeploy CLI](https://github.com/wedeploy
 |   :---:     |     :---:           |     :----                                                       | 
 | static      | wedeploy/hosting    | Hosts frontend static code                                      |  
 | data        | wedeploy/data       | Holds messages data                                             | 
-| bot         | wedeploy/maven      | Listens to messages and executes bot commands                   | 
+| bot         | wedeploy/java      | Listens to messages and executes bot commands                   | 
 | sentimenter | wedeploy/nodejs     | Exposes /analyzeAll endpoint to perform sentiment analysis      | 
 | auth        | wedeploy/auth       | Provides authentication                                         |
 | favorites   | wedeploy/maven      | Holds favorite messages performing some validation w/ handlers  |

@@ -143,6 +143,7 @@ function listenToMessageSubmission(messagesEndpoint, form, user, conversationEle
 
       WeDeploy
         .url(messagesEndpoint)
+        .path("messages")
         .post(data);
     }
 

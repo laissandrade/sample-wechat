@@ -4,7 +4,6 @@ const DOMAIN = window.location.hostname.split(".").slice(-3).join(".");
 const MESSAGES_DOMAIN = 'http://data.'+ DOMAIN;
 const AUTH_DOMAIN = 'http://auth.'+ DOMAIN;
 const REDIRECT_DOMAIN = 'http://static.'+ DOMAIN;
-const FAVORITES_DOMAIN = 'http://favorites.'+ DOMAIN;
 
 const ELEMS = {
   conversation: document.querySelector('.conversation-container'),
@@ -164,19 +163,6 @@ function appendMessage(myUser, conversationElement, data) {
 	element.id = data.domID;
 	conversationElement.appendChild(element);
 	conversationElement.scrollTop = conversationElement.scrollHeight;
-  element.addEventListener('click', (e) => {
-    let {id} = e.target.parentElement;
-
-    WeDeploy
-      .url(FAVORITES_DOMAIN)
-      .path("favorites")
-      .post({ messageId: id })
-      .then(() => {
-        console.log("Success!", arguments); 
-      }).catch(() => {
-        console.log("Error!", arguments); 
-      });
-  });
 }
 
 

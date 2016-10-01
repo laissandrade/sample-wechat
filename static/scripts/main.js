@@ -86,7 +86,6 @@ function initConversation (messagesEndpoint, user, conversationElement) {
       ELEMS.chatStatus.innerHTML = 'online';
 
       result
-        .body()
         .reverse()
         .forEach(appendMessage.bind(null, user, conversationElement));
 

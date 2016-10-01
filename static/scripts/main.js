@@ -79,7 +79,7 @@ function initConversation (messagesEndpoint, user, conversationElement) {
 
   WeDeploy.data(messagesEndpoint)
     .limit(100)
-    .sort('id', 'desc')
+    .orderBy('id', 'desc')
     .get("messages")
     .then((result) => {
 
@@ -106,7 +106,7 @@ function initConversation (messagesEndpoint, user, conversationElement) {
 function listenToMessagesReceived (messagesEndpoint, user, conversationElement) {
   WeDeploy.data(messagesEndpoint)
     .limit(1)
-    .sort('id', 'desc')
+    .orderBy('id', 'desc')
     .watch("messages")
     .on('changes', (result) => {
       let data = result.pop();

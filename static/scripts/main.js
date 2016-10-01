@@ -77,7 +77,7 @@ function initConversation (messagesEndpoint, user, conversationElement) {
     "color": 'color-1'
   };
 
-  WeDeploy.url(messagesEndpoint)
+  WeDeploy.data(messagesEndpoint)
     .limit(100)
     .sort('id', 'desc')
     .get()
@@ -104,7 +104,7 @@ function initConversation (messagesEndpoint, user, conversationElement) {
 
 
 function listenToMessagesReceived (messagesEndpoint, user, conversationElement) {
-  WeDeploy.url(messagesEndpoint)
+  WeDeploy.data(messagesEndpoint)
     .limit(1)
     .sort('id', 'desc')
     .watch()

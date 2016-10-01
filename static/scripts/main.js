@@ -1,10 +1,10 @@
 'use strict';
 
 const DOMAIN = window.location.hostname.split(".").slice(-3).join(".");
-const MESSAGES_ENDPOINT = 'http://data.'+ DOMAIN + '/messages';
-const AUTH_ENDPOINT = 'http://auth.'+ DOMAIN;
-const REDIRECT_ENDPOINT = 'http://static.'+ DOMAIN;
-const FAVORITES_ENDPOINT = 'http://favorites.'+ DOMAIN;
+const MESSAGES_DOMAIN = 'http://data.'+ DOMAIN;
+const AUTH_DOMAIN = 'http://auth.'+ DOMAIN;
+const REDIRECT_DOMAIN = 'http://static.'+ DOMAIN;
+const FAVORITES_DOMAIN = 'http://favorites.'+ DOMAIN;
 
 const ELEMS = {
   conversation: document.querySelector('.conversation-container'),
@@ -18,10 +18,10 @@ const ELEMS = {
 function main () {
   let user = initFakeUser();
 
-  initLogin(ELEMS.phoneButton, AUTH_ENDPOINT, REDIRECT_ENDPOINT, user);
-  initConversation(MESSAGES_ENDPOINT, user, ELEMS.conversation);
-  listenToMessagesReceived(MESSAGES_ENDPOINT, user, ELEMS.conversation);
-  listenToMessageSubmission(MESSAGES_ENDPOINT, ELEMS.form, user, ELEMS.conversation);
+  initLogin(ELEMS.phoneButton, AUTH_DOMAIN, REDIRECT_DOMAIN, user);
+  initConversation(MESSAGES_DOMAIN, user, ELEMS.conversation);
+  listenToMessagesReceived(MESSAGES_DOMAIN, user, ELEMS.conversation);
+  listenToMessageSubmission(MESSAGES_DOMAIN, ELEMS.form, user, ELEMS.conversation);
 }
 
 
@@ -80,7 +80,7 @@ function initConversation (messagesEndpoint, user, conversationElement) {
   WeDeploy.data(messagesEndpoint)
     .limit(100)
     .sort('id', 'desc')
-    .get()
+    .get("messages")
     .then((result) => {
 
       ELEMS.chatStatus.innerHTML = 'online';
@@ -107,7 +107,7 @@ function listenToMessagesReceived (messagesEndpoint, user, conversationElement) 
   WeDeploy.data(messagesEndpoint)
     .limit(1)
     .sort('id', 'desc')
-    .watch()
+    .watch("messages")
     .on('changes', (result) => {
       let data = result.pop();
 
@@ -168,7 +168,7 @@ function appendMessage(myUser, conversationElement, data) {
     let {id} = e.target.parentElement;
 
     WeDeploy
-      .url(FAVORITES_ENDPOINT)
+      .url(FAVORITES_DOMAIN)
       .path("favorites")
       .post({ messageId: id })
       .then(() => {

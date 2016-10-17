@@ -1,3 +1,11 @@
+@font-face {
+	font-family: "Galano Bold";
+	src: url('../fonts/galano/galano-bold.eot');
+	src: url('../fonts/galano/galano-bold.eot?#iefix') format('eot'),
+		url('../fonts/galano/galano-bold.woff') format('woff'),
+		url('../fonts/galano/galano-bold.ttf') format('truetype');
+}
+
 *, *:before, *:after {
   box-sizing: inherit;
 }
@@ -59,8 +67,145 @@ body {
   font-weight: 600;
 }
 
-/* Chat */
+/* Chat Login */
+.bg-dark {
+	background: #000;
+}
 
+.chat.chat-login {
+	height: 100%;
+	background: #fff;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	color: #0e141a;
+	font-family: 'Open Sans', sans-serif;
+	position: relative;
+}
+
+.chat-login--logo {
+	background: url(../images/we-logo.svg);
+	margin: 0;
+	background-size: 330px;
+	color: #000;
+	text-indent: -9999px;
+	width: 80px;
+	height: 80px;
+	margin-bottom: 1rem;
+}
+
+.chat-login--form {
+	width: 80%;
+}
+
+.chat-login--line {
+	transform: scale3d(1, -1, 1);
+	-webkit-transition: stroke-dashoffset 0.3s;
+	transition: stroke-dashoffset 0.3s;
+	pointer-events: none;
+	stroke: #1c2227;
+	stroke-width: 4px;
+	stroke-dasharray: 1072;
+	stroke-dashoffset: 668;
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	z-index: 1;
+	fill:none;
+}
+
+.chat-login--fields input, .chat-login--fields, .chat-login--fields span {
+	position: relative;
+}
+
+.chat-login--fields label {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	color:#989898;
+}
+
+.chat-login--fields {
+	padding-top: 0.5rem;
+}
+
+.chat-login--form input {
+	box-sizing: border-box;
+	border: none;
+	background: transparent;
+	z-index: 1;
+	outline: none;
+}
+
+.chat-login--form input[type="submit"] {
+	width: 100%;
+	height: 3rem;
+	background: #00d46a;
+	color: #fff;
+	border-radius: 4px;
+	margin: 1.8rem 0;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.chat-login--fields input {
+	padding-left: 1rem;
+}
+
+.chat-login--fields input, .chat-login--fields label {
+	z-index: 1;
+	width: 100%;
+	height: 3rem;
+}
+
+.chat-login--fields span, .chat-login--form input {
+	font-family: 'Open Sans', sans-serif;
+	font-size: 1.2rem;
+}
+
+.chat-login--fields span {
+	z-index: 2;
+	display: block;
+	visibility: hidden;
+	opacity: 0;
+	margin: 0.7rem 0;
+	transition: ease-out .2s all, ease-out .1s visibility;
+}
+
+.chat-login--footer {
+	position: absolute;
+	bottom: 1.7rem;
+	/** for safari */
+	width: 100%;
+	text-align: center;
+}
+
+.chat-login--footer a{
+	font-family: "Galano Bold";
+	color: #000;
+	text-decoration: none;
+}
+
+/* Chat Login Actions */
+.chat-login--fields input:focus ~ label svg {
+	stroke-dashoffset: 0;
+}
+
+.chat-login--fields input:focus ~ label span{
+	transition: ease-out .2s all, ease-out 0s visibility;
+	transform: translate3d(0,-2.6rem,0);
+	font-size: 1rem;
+	color: #00d46a;
+	opacity: 1;
+	visibility: visible;
+}
+
+.chat-login--fields input#password:focus ~ label span{
+	transform: translate3d(0, 2.4rem,0);
+}
+
+/* Chat */
 .chat {
   height: calc(100% - 69px);
 }

@@ -8,6 +8,7 @@ import com.wedeploy.api.serializer.Parser;
 
 import io.wedeploy.wechat.bot.commands.Bot;
 import io.wedeploy.wechat.bot.commands.HelpCommand;
+import io.wedeploy.wechat.bot.commands.RemoteCommand;
 import io.wedeploy.wechat.bot.commands.SayHelloCommand;
 import io.wedeploy.wechat.bot.commands.SentimentCommand;
 
@@ -33,7 +34,15 @@ public class ChatListenerRuntime implements Lifecycle {
 			.registerCommand(new SentimentCommand())
 			.registerCommand(new HelpCommand());
 
-		realtime = messagesClient
+		WeDeploy
+			.url("data")
+			.path("/commands")
+			.param("limit", 1000)
+			.get()
+			.bodyList(RemoteCommand.class)
+			.forEach(bot::registerCommand);
+
+		messageRealtime = messagesClient
 			.limit(1)
 			.sort("id", "desc")
 			.watch()
@@ -48,8 +57,8 @@ public class ChatListenerRuntime implements Lifecycle {
 
 	@Override
 	public void stop(Context context) {
-		if (realtime != null) {
-			realtime.close();
+		if (messageRealtime != null) {
+			messageRealtime.close();
 		}
 	}
 
@@ -64,12 +73,16 @@ public class ChatListenerRuntime implements Lifecycle {
 			(String)message.get("content"));
 
 		if (botMessage != null) {
-			messagesClient .post(botMessage.toString());
+			messagesClient.post(botMessage.toString());
 		}
+	}
+
+	public Bot getBot() {
+		return bot;
 	}
 
 	private Bot bot;
 	private WeDeploy messagesClient;
-	private RealTime realtime;
+	private RealTime messageRealtime;
 
 }

@@ -1,0 +1,17 @@
+[
+	{
+		"handler": "io.wedeploy.wechat.bot.handlers.CommandHandler#handle",
+		"path": "/commands",
+		"method": "post",
+		"parameters": {
+			"command": {
+				"type": "string",
+				"required": true
+			},
+			"webhook": {
+				"type": "string",
+				"required": true
+			}
+		}
+	}
+]

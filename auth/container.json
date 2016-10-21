@@ -2,6 +2,8 @@
   "id": "auth",
   "type": "wedeploy/auth",
   "env": {
+	"WEDEPLOY_AUTH_PASSWORD": "true",
+	"WEDEPLOY_AUTH_SECURE_FIELDS": "providers,password,resetKey,supportedScopes",
   	"WEDEPLOY_AUTH_GOOGLE": "true",
   	"WEDEPLOY_AUTH_GOOGLE_CLIENT_ID": "701114361214-ioki4ro223v3jd64rq42dlbb9htt42rp.apps.googleusercontent.com",
   	"WEDEPLOY_AUTH_GOOGLE_CLIENT_SECRET": "Gc8fsqgjX2fHypnCNrWD-FSA"

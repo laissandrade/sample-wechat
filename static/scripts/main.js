@@ -3,62 +3,125 @@
 const DOMAIN = window.location.hostname.split(".").slice(-3).join(".");
 const MESSAGES_DOMAIN = 'http://data.'+ DOMAIN;
 const AUTH_DOMAIN = 'http://auth.'+ DOMAIN;
-const REDIRECT_DOMAIN = 'http://static.'+ DOMAIN;
+const BOT_DOMAIN = 'http://bot.'+ DOMAIN;
 
 const ELEMS = {
-  conversation: document.querySelector('.conversation-container'),
-  form: document.querySelector('.conversation-compose'),
-  chatStatus: document.querySelector('#chat-status'),
-  chatLogin: document.querySelector('#chat-login'),
-  phoneButton: document.querySelector('.actions.phone')
+	conversation: document.querySelector('.conversation-container'),
+	form: document.querySelector('.conversation-compose'),
+	chatStatus: document.querySelector('#chat-status'),
+	chatLogin: document.querySelector('#chat-login'),
+	phoneButton: document.querySelector('.actions.phone'),
+	informationsMenu: document.querySelector('.actions.more'),
+	botForm: document.querySelector('#bot-form')
 };
 
-
 function main () {
-  let user = initFakeUser();
 
-  initLogin(ELEMS.phoneButton, AUTH_DOMAIN, REDIRECT_DOMAIN, user);
-  initConversation(MESSAGES_DOMAIN, user, ELEMS.conversation);
-  listenToMessagesReceived(MESSAGES_DOMAIN, user, ELEMS.conversation);
-  listenToMessageSubmission(MESSAGES_DOMAIN, ELEMS.form, user, ELEMS.conversation);
+	if(ELEMS.form){
+		initFakeUser();
+		initConversation(MESSAGES_DOMAIN, ELEMS.conversation);
+		listenToMessagesReceived(MESSAGES_DOMAIN, ELEMS.conversation);
+		listenToMessageSubmission(MESSAGES_DOMAIN, ELEMS.form, ELEMS.conversation);
+	}else if(ELEMS.botForm){
+		submitForm(ELEMS);
+	}
+
+	if(ELEMS.informationsMenu){
+		bindInformationsMenu(ELEMS);
+	}else {
+		listenToSocialsLogin('facebook', AUTH_DOMAIN);
+		listenToSocialsLogin('google', AUTH_DOMAIN);
+	}
+}
+
+function bindInformationsMenu(elems){
+	let info = elems.informationsMenu;
+	info.addEventListener('click', function(){
+		info.classList.add('opened');
+	});
+
+	elems.conversation.addEventListener('click', function(e) {
+		info.classList.remove('opened');
+	})
 }
 
 
-function initLogin (loginElement, authEndpoint, redirectEndpoint, user) {
-  let auth = WeDeploy.auth(authEndpoint);
-  let provider = new auth.provider.Google();
+function listenToSocialsLogin(provider, authEndpoint){
+	document.querySelector('.'+provider+'-btn').addEventListener('click', function(){
+		let auth = WeDeploy.auth(authEndpoint),
+			authProvider;
 
-  provider.setProviderScope('email');
-  provider.setRedirectUri(redirectEndpoint);
+		if(provider == 'facebook'){
+			authProvider = new auth.provider.Facebook();
+		}else {
+			authProvider = new auth.provider.Google();
+		}
 
-  loginElement.addEventListener('click', () => {
-    auth.signInWithRedirect(provider);
-  });
+		authProvider.setProviderScope('email');
+		authProvider.setRedirectUri('http://'+DOMAIN+"/chat.html")
+
+		auth.signInWithRedirect(authProvider);
+	});
 
 
-  auth.onSignIn((loginDetails) => {
-    let {name} = loginDetails;
-
-    chatLogin.innerHTML = name;
-    user.name = name;
-  });
 }
 
+function submitForm(elems){
+	var form = elems.botForm,
+		command,
+		webhook;
+
+	form.querySelector('.submit').addEventListener('click', (e) => {
+		command = form.querySelector('#bot-command').value;
+		webhook = form.querySelector('#bot-webhook').value;
+
+		if (command && webhook) {
+			let data = { command, webhook};
+
+			WeDeploy
+			.url(BOT_DOMAIN)
+			.path("commands")
+			.post(data)
+			.then((resp) => {
+
+			if(resp.succeeded()){
+				location.href = '/chat.html';
+			}else {
+				alert('Command already exists.');
+			}
+		});
+		}
+
+		e.preventDefault();
+	});
+}
 
 /**
  * Initializes the user, either from localstorage or by
  * creating it and then storing it on localstorage.
  */
 function initFakeUser () {
-  if (localStorage.myUser) {
-    return JSON.parse(localStorage.myUser);
-  }
+	let user;
 
-  let user = {
-    "id": faker.random.uuid(),
-    "name": faker.name.firstName(),
-    "color": 'color-' + Math.floor(Math.random() * 19)
-  };
+	WeDeploy.auth(AUTH_DOMAIN).onSignIn(function(user){
+		user = {
+			"id": user.id,
+			"name": user.name,
+			"color": 'color-' + Math.floor(Math.random() * 19)
+		}
+
+		localStorage.setItem('myUser', JSON.stringify(user));
+	})
+
+	if (localStorage.myUser) {
+		return JSON.parse(localStorage.myUser);
+	}
+
+	user = {
+		"id": faker.random.uuid(),
+		"name": faker.name.firstName(),
+		"color": 'color-' + Math.floor(Math.random() * 19)
+	};
 
   localStorage.setItem('myUser', JSON.stringify(user));
 
@@ -69,7 +132,7 @@ function initFakeUser () {
 /**
  * Initializes the conversation element
  */
-function initConversation (messagesEndpoint, user, conversationElement) {
+function initConversation (messagesEndpoint, conversationElement) {
   const BOT_USER = {
     "id": 'TheBot',
     "name": 'TheBot',
@@ -81,6 +144,7 @@ function initConversation (messagesEndpoint, user, conversationElement) {
     .orderBy('id', 'desc')
     .get("messages")
     .then((result) => {
+	  let user = JSON.parse(localStorage.myUser);
 
       ELEMS.chatStatus.innerHTML = 'online';
 
@@ -101,12 +165,13 @@ function initConversation (messagesEndpoint, user, conversationElement) {
 }
 
 
-function listenToMessagesReceived (messagesEndpoint, user, conversationElement) {
+function listenToMessagesReceived (messagesEndpoint, conversationElement) {
   WeDeploy.data(messagesEndpoint)
     .limit(1)
     .orderBy('id', 'desc')
     .watch("messages")
     .on('changes', (result) => {
+	  let user = JSON.parse(localStorage.myUser);
       let data = result.pop();
 
       if (data.domID) {
@@ -116,27 +181,29 @@ function listenToMessagesReceived (messagesEndpoint, user, conversationElement) 
           return animateMessage(element);
         } 
       }
-      
+
       appendMessage(user, conversationElement, data);
     });
 }
 
 
-function listenToMessageSubmission(messagesEndpoint, form, user, conversationElement) {
+function listenToMessageSubmission(messagesEndpoint, form, conversationElement) {
   form.addEventListener('submit', (e) => {
     let {input} = e.target;
+	let user = JSON.parse(localStorage.myUser);
+	let data;
 
     if (input.value) {
-      let data = {
-        domID: faker.random.uuid(),
-        author: {
-          id: user.id,
-          name: user.name,
-          color: user.color
-        },
-        content: input.value,
-        time: moment().format('h:mm A')
-      };
+		data = {
+			domID: faker.random.uuid(),
+			author: {
+			  id: user.id,
+			  name: user.name,
+			  color: user.color
+			},
+			content: input.value,
+			time: moment().format('h:mm A')
+		  };
 
       appendMessage(user, conversationElement, data);
 

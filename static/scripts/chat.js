@@ -1,115 +1,19 @@
 'use strict';
 
-const DOMAIN = window.location.hostname.split(".").slice(-3).join(".");
 const MESSAGES_DOMAIN = 'http://data.'+ DOMAIN;
 const AUTH_DOMAIN = 'http://auth.'+ DOMAIN;
-const BOT_DOMAIN = 'http://bot.'+ DOMAIN;
 
 const ELEMS = {
 	conversation: document.querySelector('.conversation-container'),
 	form: document.querySelector('.conversation-compose'),
-	chatStatus: document.querySelector('#chat-status'),
-	chatLogin: document.querySelector('#chat-login'),
-	phoneButton: document.querySelector('.actions.phone'),
-	informationsMenu: document.querySelector('.actions.more'),
-	botForm: document.querySelector('#bot-form'),
-	userList: document.querySelector('.conversation-container'),
-	informations: document.querySelector('.chat-informations')
+	chatStatus: document.querySelector('#chat-status')
 };
 
 function main () {
-
-	if(ELEMS.form){
-		initFakeUser();
-		initConversation(MESSAGES_DOMAIN, ELEMS.conversation);
-		listenToMessagesReceived(MESSAGES_DOMAIN, ELEMS.conversation);
-		listenToMessageSubmission(MESSAGES_DOMAIN, ELEMS.form, ELEMS.conversation);
-	}else if(ELEMS.botForm){
-		submitForm(ELEMS);
-	}
-
-	if(ELEMS.informationsMenu){
-		bindInformationsMenu(ELEMS);
-	}else {
-		listenToSocialsLogin('facebook', AUTH_DOMAIN);
-		listenToSocialsLogin('google', AUTH_DOMAIN);
-	}
-
-	if(ELEMS.informations){
-		initUserList(AUTH_DOMAIN, ELEMS.userList);
-	}
-}
-
-function bindInformationsMenu(elems){
-	let info = elems.informationsMenu;
-	info.addEventListener('click', function(){
-		info.classList.add('opened');
-	});
-
-	elems.conversation.addEventListener('click', function(e) {
-		info.classList.remove('opened');
-	})
-}
-
-function initUserList(authEndpoint, usersElement) {
-  WeDeploy
-  	.data(authEndpoint)
-    .limit(100)
-    .orderBy('name', 'asc')
-    .get("users")
-    .then((result) => {
-      result.forEach(appendUser.bind(null, usersElement));
-    });
-}
-
-function listenToSocialsLogin(provider, authEndpoint){
-	document.querySelector('.'+provider+'-btn').addEventListener('click', function(){
-		let auth = WeDeploy.auth(authEndpoint),
-			authProvider;
-
-		if(provider == 'facebook'){
-			authProvider = new auth.provider.Facebook();
-		}else {
-			authProvider = new auth.provider.Google();
-		}
-
-		authProvider.setProviderScope('email');
-		authProvider.setRedirectUri('http://'+DOMAIN+"/chat.html")
-
-		auth.signInWithRedirect(authProvider);
-	});
-
-
-}
-
-function submitForm(elems){
-	var form = elems.botForm,
-		command,
-		webhook;
-
-	form.querySelector('.submit').addEventListener('click', (e) => {
-		command = form.querySelector('#bot-command').value;
-		webhook = form.querySelector('#bot-webhook').value;
-
-		if (command && webhook) {
-			let data = { command, webhook};
-
-			WeDeploy
-			.url(BOT_DOMAIN)
-			.path("commands")
-			.post(data)
-			.then((resp) => {
-
-			if(resp.succeeded()){
-				location.href = '/chat.html';
-			}else {
-				alert('Command already exists.');
-			}
-		});
-		}
-
-		e.preventDefault();
-	});
+	initFakeUser();
+	initConversation(MESSAGES_DOMAIN, ELEMS.conversation);
+	listenToMessagesReceived(MESSAGES_DOMAIN, ELEMS.conversation);
+	listenToMessageSubmission(MESSAGES_DOMAIN, ELEMS.form, ELEMS.conversation);
 }
 
 /**
@@ -246,19 +150,6 @@ function appendMessage(myUser, conversationElement, data) {
 	element.id = data.domID;
 	conversationElement.appendChild(element);
 	conversationElement.scrollTop = conversationElement.scrollHeight;
-}
-
-function appendUser(userElement, user) {
-	let element = document.createElement('figure');
-	
-	element.classList.add('informations--participants', 'mg-bottom-md');
-	element.innerHTML = '<div><img src="' + user.photoUrl + '" alt=""></div>' +
-		'<figcaption class="informations--participants-legend">' +
-			'<p class="name">' + user.name + '</p>' +
-			'<p class="smoth">' + user.email + '</p>' +
-		'</figcaption>';
-
-	userElement.appendChild(element);
 }
 
 

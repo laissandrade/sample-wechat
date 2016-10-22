@@ -12,7 +12,9 @@ const ELEMS = {
 	chatLogin: document.querySelector('#chat-login'),
 	phoneButton: document.querySelector('.actions.phone'),
 	informationsMenu: document.querySelector('.actions.more'),
-	botForm: document.querySelector('#bot-form')
+	botForm: document.querySelector('#bot-form'),
+	userList: document.querySelector('.conversation-container'),
+	informations: document.querySelector('.chat-informations')
 };
 
 function main () {
@@ -32,6 +34,10 @@ function main () {
 		listenToSocialsLogin('facebook', AUTH_DOMAIN);
 		listenToSocialsLogin('google', AUTH_DOMAIN);
 	}
+
+	if(ELEMS.informations){
+		initUserList(AUTH_DOMAIN, ELEMS.userList);
+	}
 }
 
 function bindInformationsMenu(elems){
@@ -45,6 +51,16 @@ function bindInformationsMenu(elems){
 	})
 }
 
+function initUserList(authEndpoint, usersElement) {
+  WeDeploy
+  	.data(authEndpoint)
+    .limit(100)
+    .orderBy('name', 'asc')
+    .get("users")
+    .then((result) => {
+      result.forEach(appendUser.bind(null, usersElement));
+    });
+}
 
 function listenToSocialsLogin(provider, authEndpoint){
 	document.querySelector('.'+provider+'-btn').addEventListener('click', function(){
@@ -230,6 +246,19 @@ function appendMessage(myUser, conversationElement, data) {
 	element.id = data.domID;
 	conversationElement.appendChild(element);
 	conversationElement.scrollTop = conversationElement.scrollHeight;
+}
+
+function appendUser(userElement, user) {
+	let element = document.createElement('figure');
+	
+	element.classList.add('informations--participants', 'mg-bottom-md');
+	element.innerHTML = '<div><img src="' + user.photoUrl + '" alt=""></div>' +
+		'<figcaption class="informations--participants-legend">' +
+			'<p class="name">' + user.name + '</p>' +
+			'<p class="smoth">' + user.email + '</p>' +
+		'</figcaption>';
+
+	userElement.appendChild(element);
 }
 
 
